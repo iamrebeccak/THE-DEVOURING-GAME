@@ -9,6 +9,8 @@ public class Unit : MonoBehaviour
     public string unitName;
 
     public int damage;
+    public int heal;
+    public int cook;
 
     public int maxHP;
     public int currentHP;
@@ -21,8 +23,23 @@ public class Unit : MonoBehaviour
             return true;
         else
             return false;
+    }
 
-        
+    public void Heal(int amount)
+    {
+        currentHP += amount;
+        if (currentHP > maxHP)
+            currentHP = maxHP;
+    }
+
+
+    public bool CookDamage(int cook)
+    {
+        currentHP -= cook;
+        if (currentHP <= 0)
+            return true;
+        else
+            return false;
     }
 
 }

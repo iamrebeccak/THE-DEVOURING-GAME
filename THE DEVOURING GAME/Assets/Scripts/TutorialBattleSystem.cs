@@ -5,30 +5,29 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST } //defining the different states that the game can be in
+public enum TutorialBattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST } //defining the different states that the game can be in
 
-public class BattleSystem : MonoBehaviour
+public class TutorialBattleSystem : MonoBehaviour
 {
-
     public GameObject playerPrefab;
-    public GameObject enemyPrefab;
+    public GameObject goblinPrefab;
 
-    public Transform playerBattleStation;
-    public Transform enemyBattleStation;
+    public Transform TutorialPlayerBattleStation;
+    public Transform TutorialEnemyBattleStation;
 
     Unit playerUnit;
-    Unit enemyUnit;
+    Unit goblinUnit;
 
     public DialogueManager dialogueManager;
     public TextMeshProUGUI dialogueText;
 
     public BattleHUD playerHUD;
-    public BattleHUD enemyHUD;
+    public BattleHUD goblinHUD;
 
     public Slider hpSlider;
 
     public BattleHUD playerHealth;
-    public BattleHUD enemyHealth;
+    public BattleHUD goblinHealth;
 
     public bool SetActive;
     public bool isPlayerTurn = true;
@@ -51,52 +50,54 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator SetupBattle()
     {
-        GameObject playerGO = Instantiate(playerPrefab, playerBattleStation);
+        GameObject playerGO = Instantiate(playerPrefab, TutorialPlayerBattleStation);
         playerUnit = playerGO.GetComponent<Unit>();
 
-        GameObject enemyGO = Instantiate(enemyPrefab, enemyBattleStation);
-        enemyUnit = enemyGO.GetComponent<Unit>();
+        GameObject goblinGO = Instantiate(goblinPrefab, TutorialEnemyBattleStation);
+        goblinUnit = goblinGO.GetComponent<Unit>();
+        Debug.Log("Spawned");
 
-        dialogueManager.dialogueText.text = "A viscous " + enemyUnit.unitName + " has appeared...";
+        dialogueManager.dialogueText.text = "Hi there " + playerUnit.unitName + " Welcome to the tutorial!";
 
         playerHUD.SetHUD(playerUnit);
-        enemyHUD.SetHUD(enemyUnit);
+        goblinHUD.SetHUD(goblinUnit);
 
         playerHealth.SetSlider(playerUnit);
-        enemyHealth.SetSlider(enemyUnit);
+        goblinHealth.SetSlider(goblinUnit);
 
         yield return new WaitForSeconds(2f);
 
         state = BattleState.PLAYERTURN;
         PlayerTurn();
-
+  
     }
 
     IEnumerator PlayerAttack()
     {
-        bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
+        bool isDead = goblinUnit.TakeDamage(playerUnit.damage);
         Debug.Log("Takedamage");
 
 
-        enemyHealth.SetHP(enemyUnit.currentHP);
-        dialogueManager.dialogueText.text = "The attack is successful! " + enemyUnit.unitName + " takes " + playerUnit.damage + " damage!";
+        goblinHealth.SetHP(goblinUnit.currentHP);
+        dialogueManager.dialogueText.text = "The attack is successful! " + goblinUnit.unitName + " takes " + playerUnit.damage + " damage!";
 
         yield return new WaitForSeconds(2f);
 
-        if(isDead)
+        if (isDead)
         {
             state = BattleState.WON;
 
-            enemyHealth.SetHP(enemyUnit.currentHP = 0);
-            enemyUnit.GetComponent<SpriteRenderer>().enabled = false;
+            goblinHealth.SetHP(goblinUnit.currentHP = 0);
+            goblinUnit.GetComponent<SpriteRenderer>().enabled = false;
             yield return new WaitForSeconds(3.0f);
 
             SceneManager.LoadScene("WinScreen");
             EndBattle();
-        } else
+        }
+        else
         {
             state = BattleState.ENEMYTURN;
-            enemyHealth.SetHP(enemyUnit.currentHP);
+            goblinHealth.SetHP(goblinUnit.currentHP);
 
             yield return new WaitForSeconds(2f);
             StartCoroutine(EnemyTurn());
@@ -107,12 +108,12 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator PlayerCook()
     {
-        bool isDead = enemyUnit.CookDamage(playerUnit.cook);
+        bool isDead = goblinUnit.CookDamage(playerUnit.cook);
         Debug.Log("CookDamage");
 
 
-        enemyHealth.SetHP(enemyUnit.currentHP);
-        dialogueManager.dialogueText.text = "The attack is successful! " + enemyUnit.unitName + " takes " + playerUnit.cook + " damage!";
+        goblinHealth.SetHP(goblinUnit.currentHP);
+        dialogueManager.dialogueText.text = "The attack is successful! " + goblinUnit.unitName + " takes " + playerUnit.cook + " damage!";
 
         yield return new WaitForSeconds(2f);
 
@@ -120,8 +121,8 @@ public class BattleSystem : MonoBehaviour
         {
             state = BattleState.WON;
 
-            enemyHealth.SetHP(enemyUnit.currentHP = 0);
-            enemyUnit.GetComponent<SpriteRenderer>().enabled = false;
+            goblinHealth.SetHP(goblinUnit.currentHP = 0);
+            goblinUnit.GetComponent<SpriteRenderer>().enabled = false;
             yield return new WaitForSeconds(3.0f);
 
             SceneManager.LoadScene("WinScreen");
@@ -130,7 +131,7 @@ public class BattleSystem : MonoBehaviour
         else
         {
             state = BattleState.ENEMYTURN;
-            enemyHealth.SetHP(enemyUnit.currentHP);
+            goblinHealth.SetHP(goblinUnit.currentHP);
 
             yield return new WaitForSeconds(2f);
             StartCoroutine(EnemyTurn());
@@ -173,11 +174,11 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-        dialogueManager.dialogueText.text = enemyUnit.unitName + " attacks!";
+        dialogueManager.dialogueText.text = goblinUnit.unitName + " attacks!";
 
         yield return new WaitForSeconds(2f);
 
-        bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
+        bool isDead = playerUnit.TakeDamage(goblinUnit.damage);
         playerHealth.SetHP(playerUnit.currentHP);
         dialogueManager.dialogueText.text = playerUnit.unitName + " takes " + playerUnit.damage + " damage!";
 
@@ -189,7 +190,7 @@ public class BattleSystem : MonoBehaviour
             playerUnit.GetComponent<SpriteRenderer>().enabled = false;
             yield return new WaitForSeconds(3.0f);
 
-;           SceneManager.LoadScene("LoseScreen");
+            ; SceneManager.LoadScene("LoseScreen");
             EndBattle();
         }
         else
@@ -199,26 +200,11 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    public IEnumerator Shake(float duration, float magnitude)
-    {
-        Vector3 originalPos = transform.localPosition;
-        float elapsed = 0.0f;
-        while (elapsed < duration)
-        {
-            state = BattleState.ENEMYTURN;
-            // Randomly offset position within magnitude range
-            transform.localPosition = (Vector3)Random.insideUnitCircle * magnitude + originalPos;
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-        transform.localPosition = originalPos;
-    }
-
     void EndBattle()
     {
         if (state == BattleState.WON)
         {
-            dialogueManager.dialogueText.text = "You have defeated the " + enemyUnit.unitName + "!";
+            dialogueManager.dialogueText.text = "You have defeated the " + goblinUnit.unitName + "!";
         }
         else if (state == BattleState.LOST)
         {
@@ -242,13 +228,14 @@ public class BattleSystem : MonoBehaviour
 
     void PlayerTurn()
     {
-        dialogueManager.dialogueText.text = "Choose an action, " + playerUnit.unitName;
+        dialogueManager.dialogueText.text = "This is turn based combat - you choose your action, wait for your opponent to respond, and then choose your next action. Keep going until you either win or lose the battle";
+
     }
 
     public void OnAttackButton()
     {
         if (state != BattleState.PLAYERTURN)
-            return; 
+            return;
         StartCoroutine(PlayerAttack());
 
     }

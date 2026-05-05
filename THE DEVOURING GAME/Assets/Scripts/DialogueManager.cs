@@ -5,9 +5,10 @@ using TMPro;
 
 public class DialogueManager : MonoBehaviour
 {
-        public TextMeshProUGUI dialogueText;
-        public GameObject dialogueBox;
-        public float typeSpeed = 0.05f;
+        
+    public TextMeshProUGUI dialogueText;
+    public GameObject dialogueBox;
+    public float typeSpeed = 0.05f;
 
         public IEnumerator ShowDialogue(string line)
         {
